@@ -74,6 +74,7 @@ function updateStudentRecord(studentData) {
   var familyIdStatusCol = -1;
   var familyIdCol = -1;
   var reasonCol = -1;
+  var timestampCol = -1;
 
   headers.forEach(function(header, index) {
     var h = header.trim();
@@ -83,6 +84,7 @@ function updateStudentRecord(studentData) {
     if (h === 'Family ID status') familyIdStatusCol = index;
     if (h === 'New FamilyId') familyIdCol = index;
     if (h === 'Reason') reasonCol = index;
+    if (h === 'Timestamp') timestampCol = index;
   });
 
   if (serialNumCol === -1) {
@@ -98,6 +100,7 @@ function updateStudentRecord(studentData) {
       if (familyIdStatusCol !== -1) sheet.getRange(rowIdx, familyIdStatusCol + 1).setValue(studentData['Family ID status'] || '');
       if (familyIdCol !== -1) sheet.getRange(rowIdx, familyIdCol + 1).setValue(studentData['New FamilyId'] || '');
       if (reasonCol !== -1) sheet.getRange(rowIdx, reasonCol + 1).setValue(studentData['Reason'] || '');
+      if (timestampCol !== -1) sheet.getRange(rowIdx, timestampCol + 1).setValue(new Date());
       
       found = true;
       break;

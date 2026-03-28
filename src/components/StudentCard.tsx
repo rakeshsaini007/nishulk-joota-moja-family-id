@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { User, MapPin, Phone, School, GraduationCap, Save, RefreshCw, ClipboardList, FileText, HelpCircle } from 'lucide-react';
+import { User, MapPin, Phone, School, GraduationCap, Save, RefreshCw, ClipboardList, FileText, HelpCircle, Clock } from 'lucide-react';
 import { gasService } from '../services/gasService';
 
 interface StudentCardProps {
@@ -27,6 +27,23 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onUpdateSucce
   const [isUpdating, setIsUpdating] = useState(false);
 
   const hasExistingData = student.status || student['New FamilyId'] || student['Ration Card Status'];
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return null;
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    } catch (e) {
+      return dateStr;
+    }
+  };
 
   const handleUpdate = async () => {
     setIsUpdating(true);
@@ -248,6 +265,13 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onUpdateSucce
               </>
             )}
           </button>
+
+          {student.Timestamp && (
+            <div className="flex items-center justify-center gap-1.5 text-[10px] text-gray-400 italic pt-2">
+              <Clock size={10} />
+              <span>Last Updated: {formatDate(student.Timestamp)}</span>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>
