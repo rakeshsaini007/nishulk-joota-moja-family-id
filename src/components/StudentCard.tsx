@@ -19,11 +19,11 @@ const RATION_CARD_OPTIONS = ['Created', 'Not created'];
 const FAMILY_ID_OPTIONS = ['Not Applied', 'Applied', 'Created'];
 
 export const StudentCard: React.FC<StudentCardProps> = ({ student, onUpdateSuccess }) => {
-  const [rationStatus, setRationStatus] = useState(student['Ration Card Status'] || '');
-  const [status, setStatus] = useState(student.status || '');
-  const [familyIdStatus, setFamilyIdStatus] = useState(student['Family ID status'] || '');
-  const [familyId, setFamilyId] = useState(student['New FamilyId'] || '');
-  const [reason, setReason] = useState(student.Reason || '');
+  const [rationStatus, setRationStatus] = useState(String(student['Ration Card Status'] || ''));
+  const [status, setStatus] = useState(String(student.status || ''));
+  const [familyIdStatus, setFamilyIdStatus] = useState(String(student['Family ID status'] || ''));
+  const [familyId, setFamilyId] = useState(String(student['New FamilyId'] || ''));
+  const [reason, setReason] = useState(String(student.Reason || ''));
   const [isUpdating, setIsUpdating] = useState(false);
 
   const hasExistingData = student.status || student['New FamilyId'] || student['Ration Card Status'];
@@ -47,12 +47,15 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onUpdateSucce
 
   const handleUpdate = async () => {
     // Validation
-    if (familyIdStatus === 'Not Applied' && !reason.trim()) {
+    const trimmedReason = String(reason).trim();
+    const trimmedFamilyId = String(familyId).trim();
+
+    if (familyIdStatus === 'Not Applied' && !trimmedReason) {
       alert('Please provide a reason for not applying for Family ID.');
       return;
     }
 
-    if ((familyIdStatus === 'Applied' || familyIdStatus === 'Created') && !familyId.trim()) {
+    if ((familyIdStatus === 'Applied' || familyIdStatus === 'Created') && !trimmedFamilyId) {
       alert('Please provide the New Family ID.');
       return;
     }
@@ -228,7 +231,7 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onUpdateSucce
                     type="number"
                     value={familyId}
                     onChange={(e) => setFamilyId(e.target.value)}
-                    className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-gray-50 ${!familyId.trim() ? 'border-red-200' : 'border-gray-300'}`}
+                    className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-gray-50 ${!String(familyId).trim() ? 'border-red-200' : 'border-gray-300'}`}
                     placeholder="Enter Family ID (Required)"
                   />
                 </motion.div>
@@ -248,7 +251,7 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onUpdateSucce
                     type="text"
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-gray-50 ${!reason.trim() ? 'border-red-200' : 'border-gray-300'}`}
+                    className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-gray-50 ${!String(reason).trim() ? 'border-red-200' : 'border-gray-300'}`}
                     placeholder="Enter Reason (Required)"
                   />
                 </motion.div>

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Search, GraduationCap, School, AlertCircle, RefreshCw, ChevronRight } from 'lucide-react';
 import { gasService } from './services/gasService';
 import { StudentCard } from './components/StudentCard';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 export default function App() {
   const [schoolCode, setSchoolCode] = useState('');
@@ -21,13 +22,13 @@ export default function App() {
 
     try {
       const result = await gasService.fetchBySchoolCode(schoolCode);
-      if (result.success) {
+      if (result.success && Array.isArray(result.data)) {
         setStudents(result.data);
         if (result.data.length === 0) {
           setError('No students found for this school code.');
         }
       } else {
-        setError(result.message || 'Failed to fetch students.');
+        setError(result.message || 'Failed to fetch students or invalid data format.');
       }
     } catch (err) {
       setError('An unexpected error occurred.');
@@ -37,7 +38,8 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
       {/* Hero Section */}
       <header className="bg-indigo-700 text-white py-12 px-6 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
@@ -190,5 +192,6 @@ export default function App() {
         <p className="mt-1">Powered by Google Apps Script & React</p>
       </footer>
     </div>
+    </ErrorBoundary>
   );
 }
