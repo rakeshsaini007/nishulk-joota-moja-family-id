@@ -1,0 +1,5 @@
+{
+  "name": "Student Data Management",
+  "description": "A React app to manage student ration card status and family IDs, integrated with Google Sheets via Google Apps Script.",
+  "requestFramePermissions": []
+}

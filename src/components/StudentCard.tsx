@@ -1,0 +1,255 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { User, MapPin, Phone, School, GraduationCap, Save, RefreshCw, ClipboardList, FileText, HelpCircle } from 'lucide-react';
+import { gasService } from '../services/gasService';
+
+interface StudentCardProps {
+  student: any;
+  onUpdateSuccess: () => void;
+}
+
+const STATUS_OPTIONS = [
+  'Non NFSA FamilyId Created',
+  'Non NFSA FamilyId Applied',
+  'Child Added in Ration Card',
+  'Added in Ration Card'
+];
+
+const RATION_CARD_OPTIONS = ['Created', 'Not created'];
+const FAMILY_ID_OPTIONS = ['Not Applied', 'Applied', 'Created'];
+
+export const StudentCard: React.FC<StudentCardProps> = ({ student, onUpdateSuccess }) => {
+  const [rationStatus, setRationStatus] = useState(student['Ration Card Status'] || '');
+  const [status, setStatus] = useState(student.status || '');
+  const [familyIdStatus, setFamilyIdStatus] = useState(student['Family ID status'] || '');
+  const [familyId, setFamilyId] = useState(student['New FamilyId'] || '');
+  const [reason, setReason] = useState(student.Reason || '');
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const hasExistingData = student.status || student['New FamilyId'] || student['Ration Card Status'];
+
+  const handleUpdate = async () => {
+    setIsUpdating(true);
+    const updatedData = {
+      ...student,
+      'Ration Card Status': rationStatus,
+      status: rationStatus === 'Created' ? status : '',
+      'Family ID status': familyIdStatus,
+      'New FamilyId': (familyIdStatus === 'Applied' || familyIdStatus === 'Created') ? familyId : '',
+      Reason: familyIdStatus === 'Not Applied' ? reason : ''
+    };
+
+    const result = await gasService.updateStudentRecord(updatedData);
+    setIsUpdating(false);
+
+    if (result.success) {
+      alert('Data updated successfully!');
+      onUpdateSuccess();
+    } else {
+      alert('Error updating data: ' + result.message);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-shadow duration-300"
+    >
+      <div className="bg-indigo-600 p-4 flex justify-between items-center text-white">
+        <div className="flex items-center gap-2">
+          <User size={20} />
+          <h3 className="font-bold text-lg">{student.StudentName}</h3>
+        </div>
+        <span className="bg-indigo-500 px-3 py-1 rounded-full text-xs font-medium">
+          S.No: {student['Serial Number']}
+        </span>
+      </div>
+
+      <div className="p-6 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div className="space-y-3">
+            <div className="flex items-start gap-2 text-gray-600">
+              <MapPin size={16} className="mt-1 flex-shrink-0 text-indigo-500" />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Address</p>
+                <p>{student.StudentAddress}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2 text-gray-600">
+              <User size={16} className="mt-1 flex-shrink-0 text-indigo-500" />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Parent Name</p>
+                <p>{student.ParentName}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2 text-gray-600">
+              <GraduationCap size={16} className="mt-1 flex-shrink-0 text-indigo-500" />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Class</p>
+                <p>{student.Class}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-start gap-2 text-gray-600">
+              <School size={16} className="mt-1 flex-shrink-0 text-indigo-500" />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">School</p>
+                <p>{student.School_Name} ({student.SchoolType})</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2 text-gray-600">
+              <Phone size={16} className="mt-1 flex-shrink-0 text-indigo-500" />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Guardian Mobile</p>
+                <p>{student.GuardianMobileNo}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2 text-gray-600">
+              <MapPin size={16} className="mt-1 flex-shrink-0 text-indigo-500" />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Nyay Panchayat</p>
+                <p>{student['Nyay Panchayat']}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t pt-4 mt-4 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+                <ClipboardList size={14} className="text-indigo-500" />
+                Ration Card Status
+              </label>
+              <select
+                value={rationStatus}
+                onChange={(e) => setRationStatus(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-gray-50"
+              >
+                <option value="">Select Status</option>
+                {RATION_CARD_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+
+            <AnimatePresence>
+              {rationStatus === 'Created' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                >
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+                    <FileText size={14} className="text-indigo-500" />
+                    Status
+                  </label>
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-gray-50"
+                  >
+                    <option value="">Select Status</option>
+                    {STATUS_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+                <ClipboardList size={14} className="text-indigo-500" />
+                Family ID Status
+              </label>
+              <select
+                value={familyIdStatus}
+                onChange={(e) => setFamilyIdStatus(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-gray-50"
+              >
+                <option value="">Select Status</option>
+                {FAMILY_ID_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+
+            <AnimatePresence>
+              {(familyIdStatus === 'Applied' || familyIdStatus === 'Created') && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                >
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+                    <FileText size={14} className="text-indigo-500" />
+                    New Family ID
+                  </label>
+                  <input
+                    type="number"
+                    value={familyId}
+                    onChange={(e) => setFamilyId(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-gray-50"
+                    placeholder="Enter Family ID"
+                  />
+                </motion.div>
+              )}
+
+              {familyIdStatus === 'Not Applied' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                >
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
+                    <HelpCircle size={14} className="text-indigo-500" />
+                    Reason
+                  </label>
+                  <input
+                    type="text"
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-gray-50"
+                    placeholder="Enter Reason (English/Hindi)"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <button
+            onClick={handleUpdate}
+            disabled={isUpdating}
+            className={`w-full py-3 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all transform active:scale-95 ${
+              isUpdating 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : hasExistingData 
+                  ? 'bg-amber-500 hover:bg-amber-600 shadow-lg shadow-amber-200' 
+                  : 'bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200'
+            }`}
+          >
+            {isUpdating ? (
+              <RefreshCw size={20} className="animate-spin" />
+            ) : hasExistingData ? (
+              <>
+                <RefreshCw size={20} />
+                Update Record
+              </>
+            ) : (
+              <>
+                <Save size={20} />
+                Submit Record
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
