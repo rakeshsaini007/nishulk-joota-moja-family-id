@@ -46,6 +46,22 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onUpdateSucce
   };
 
   const handleUpdate = async () => {
+    // Validation
+    if (familyIdStatus === 'Not Applied' && !reason.trim()) {
+      alert('Please provide a reason for not applying for Family ID.');
+      return;
+    }
+
+    if ((familyIdStatus === 'Applied' || familyIdStatus === 'Created') && !familyId.trim()) {
+      alert('Please provide the New Family ID.');
+      return;
+    }
+
+    if (rationStatus === 'Created' && !status) {
+      alert('Please select a status for the Ration Card.');
+      return;
+    }
+
     setIsUpdating(true);
     const updatedData = {
       ...student,
@@ -162,7 +178,7 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onUpdateSucce
                 >
                   <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
                     <FileText size={14} className="text-indigo-500" />
-                    Status
+                    Status <span className="text-red-500 ml-1">*</span>
                   </label>
                   <select
                     value={status}
@@ -206,14 +222,14 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onUpdateSucce
                 >
                   <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
                     <FileText size={14} className="text-indigo-500" />
-                    New Family ID
+                    New Family ID <span className="text-red-500 ml-1">*</span>
                   </label>
                   <input
                     type="number"
                     value={familyId}
                     onChange={(e) => setFamilyId(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-gray-50"
-                    placeholder="Enter Family ID"
+                    className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-gray-50 ${!familyId.trim() ? 'border-red-200' : 'border-gray-300'}`}
+                    placeholder="Enter Family ID (Required)"
                   />
                 </motion.div>
               )}
@@ -226,14 +242,14 @@ export const StudentCard: React.FC<StudentCardProps> = ({ student, onUpdateSucce
                 >
                   <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1">
                     <HelpCircle size={14} className="text-indigo-500" />
-                    Reason
+                    Reason <span className="text-red-500 ml-1">*</span>
                   </label>
                   <input
                     type="text"
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-gray-50"
-                    placeholder="Enter Reason (English/Hindi)"
+                    className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-gray-50 ${!reason.trim() ? 'border-red-200' : 'border-gray-300'}`}
+                    placeholder="Enter Reason (Required)"
                   />
                 </motion.div>
               )}
